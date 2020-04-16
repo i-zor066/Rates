@@ -1,0 +1,6 @@
+rootProject.name='Rates'
+include ':app'
+include ':core'
+include ':rates:data'
+include ':rates:domain'
+include ':rates:presentation'

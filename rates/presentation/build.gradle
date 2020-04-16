@@ -1,0 +1,17 @@
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-platform-android'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+apply from: "$rootProject.projectDir/config_base_module.gradle"
+apply from: "$rootProject.projectDir/base_dependencies.gradle"
+apply from: "$rootProject.projectDir/test_dependencies.gradle"
+
+dependencies {
+    implementation project(':core')
+    implementation project(':rates:data')
+
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+}

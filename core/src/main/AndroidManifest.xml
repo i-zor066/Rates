@@ -1,0 +1,6 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="io.csqn.core">
+    <application android:name="io.csqn.core.BaseApplication"
+        android:theme="@style/AppTheme"/>
+</manifest>

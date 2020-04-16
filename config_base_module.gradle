@@ -1,0 +1,57 @@
+apply from: "$rootProject.projectDir/versions.gradle"
+apply from: "$rootProject.projectDir/base_dependencies.gradle"
+apply from: "$rootProject.projectDir/test_dependencies.gradle"
+
+apply plugin: 'kotlin-platform-android'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+ext {
+    android {
+        compileSdkVersion project.compile_sdk_version
+        buildToolsVersion "$project.build_tools_version"
+
+        defaultConfig {
+            minSdkVersion project.min_sdk_version
+            targetSdkVersion project.target_sdk_version
+            versionCode project.version_code
+            versionName "$project.version_name"
+            multiDexEnabled true
+
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        }
+
+        buildTypes {
+            debug {
+
+            }
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+        }
+
+        viewBinding {
+            enabled = true
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+        kotlinOptions {
+            jvmTarget = JavaVersion.VERSION_1_8
+        }
+
+        packagingOptions {
+            exclude 'META-INF/ASL2.0'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/LICENSE.txt'
+            exclude 'META-INF/NOTICE.txt'
+            exclude 'META-INF/MANIFEST.MF'
+            exclude 'META-INF/*.kotlin_module'
+        }
+    }
+}

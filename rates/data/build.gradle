@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+
+apply plugin: 'kotlin-platform-android'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+apply from: "$rootProject.projectDir/config_base_module.gradle"
+apply from: "$rootProject.projectDir/base_dependencies.gradle"
+apply from: "$rootProject.projectDir/test_dependencies.gradle"
+
+def secretsPropertiesFile = rootProject.file("secrets.properties")
+def secretsProperties = new Properties()
+secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
+android {
+    buildTypes {
+        debug {
+            buildConfigField('String', 'BASE_URL', secretsProperties['devBaseUrl'])
+            buildConfigField('String', 'MEDIA_URL', secretsProperties['mediaUrl'])
+            buildConfigField('String', 'COUNTRIES_BASE_URL', secretsProperties['countriesBaseUrl'])
+        }
+        release {
+            buildConfigField('String', 'BASE_URL', secretsProperties['prodBaseUrl'])
+            buildConfigField('String', 'MEDIA_URL', secretsProperties['mediaUrl'])
+            buildConfigField('String', 'COUNTRIES_BASE_URL', secretsProperties['countriesBaseUrl'])
+        }
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    api project(':rates:domain')
+
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+}

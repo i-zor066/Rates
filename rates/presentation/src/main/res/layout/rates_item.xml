@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/generic_gap_small"
+    android:paddingBottom="@dimen/generic_gap_small">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/currency_flag_imageview"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="@dimen/generic_gap_medium"
+        android:layout_marginBottom="@dimen/generic_gap_medium"
+        android:layout_marginEnd="@dimen/generic_gap_medium"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:adjustViewBounds="true"/>
+
+    <TextView
+        android:id="@+id/currency_code_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:fontFamily="@font/roboto_medium"
+        android:textColor="@color/text_dark"
+        android:textSize="@dimen/text_x_large"
+        android:layout_marginStart="@dimen/generic_gap_medium"
+        app:layout_constraintBottom_toTopOf="@+id/currency_name_textview"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_price"
+        app:layout_constraintStart_toEndOf="@+id/currency_flag_imageview"
+        app:layout_constraintTop_toTopOf="@+id/currency_flag_imageview"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="EUR" />
+
+    <TextView
+        android:id="@+id/currency_name_textview"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:gravity="start"
+        android:textColor="@color/text_light"
+        android:textSize="@dimen/text_large"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="@+id/currency_code_textview"
+        app:layout_constraintTop_toBottomOf="@+id/currency_code_textview"
+        app:layout_constraintBottom_toBottomOf="@+id/currency_flag_imageview"
+        tools:text="Euro" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_price"
+        android:layout_width="1dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7" />
+
+    <EditText
+        android:id="@+id/currency_edittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/roboto_medium"
+        android:paddingBottom="@dimen/generic_gap"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/text_x_large"
+        android:gravity="center_vertical|end"
+        app:layout_constraintBottom_toBottomOf="@+id/currency_name_textview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/currency_code_textview"
+        tools:text="220.555" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
