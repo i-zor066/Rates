@@ -1,4 +1,4 @@
-package io.csqn.rates.data.mappers
+package io.csqn.rates.data.cache
 
 import io.csqn.rates.data.envelopes.CountryEnvelope
 import io.csqn.rates.data.envelopes.CurrencyEnvelope
@@ -11,7 +11,11 @@ sealed class CurrencyOverrides {
             EUR.currencyCode to EUR.countryEnvelope,
             GBP.currencyCode to GBP.countryEnvelope,
             CHF.currencyCode to CHF.countryEnvelope,
-            AUD.currencyCode to AUD.countryEnvelope)
+            AUD.currencyCode to AUD.countryEnvelope,
+            ZAR.currencyCode to ZAR.countryEnvelope,
+            USD.currencyCode to USD.countryEnvelope,
+            INR.currencyCode to INR.countryEnvelope
+       )
 
         fun isOverriden(currencyCode: String) = overrides.contains(currencyCode)
     }
@@ -62,6 +66,45 @@ sealed class CurrencyOverrides {
                 "AU", listOf(
                     CurrencyEnvelope(
                         currencyCode, "Australian dollar"
+                    )
+                ),
+                ""
+            )
+    }
+
+    object ZAR : CurrencyOverrides() {
+        const val currencyCode = "ZAR"
+        val countryEnvelope =
+            CountryEnvelope(
+                "ZA", listOf(
+                    CurrencyEnvelope(
+                        currencyCode, "South African rand"
+                    )
+                ),
+                ""
+            )
+    }
+
+    object USD : CurrencyOverrides() {
+        const val currencyCode = "USD"
+        val countryEnvelope =
+            CountryEnvelope(
+                "US", listOf(
+                    CurrencyEnvelope(
+                        currencyCode, "United States dollar"
+                    )
+                ),
+                ""
+            )
+    }
+
+    object INR : CurrencyOverrides() {
+        const val currencyCode = "INR"
+        val countryEnvelope =
+            CountryEnvelope(
+                "IN", listOf(
+                    CurrencyEnvelope(
+                        currencyCode, "Indian rupee"
                     )
                 ),
                 ""

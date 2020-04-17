@@ -7,12 +7,17 @@ import androidx.lifecycle.ViewModel
 import io.csqn.core.livedata.Event
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import java.util.*
+import kotlin.concurrent.schedule
+import kotlin.concurrent.timerTask
+import kotlin.coroutines.CoroutineContext
 
 open class BaseViewModel : ViewModel(), BaseStates {
 
     private val _error = MutableLiveData<Event<Throwable>>()
     private val _isLoading = MutableLiveData<Event<Boolean>>()
-    val baseStates:BaseStates by lazy { this@BaseViewModel }
+    protected val baseStates:BaseStates by lazy { this@BaseViewModel }
 
     protected fun Job.setLoadingState(isLoading: Boolean = true): Job {
         _isLoading.value = Event(isLoading)

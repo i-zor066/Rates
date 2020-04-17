@@ -3,7 +3,6 @@ package io.csqn.rates.data.cache
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import io.csqn.rates.data.envelopes.CountryEnvelope
-import io.csqn.rates.data.mappers.CurrencyOverrides
 import javax.inject.Inject
 
 class CountriesCache @Inject constructor(
@@ -12,15 +11,9 @@ class CountriesCache @Inject constructor(
 ) : CountriesCacheType {
 
     init {
-        CurrencyOverrides.Get.overrides.forEach { initialize(it.key, it.value) }
-    }
-
-    private fun initialize(
-        currencyCode: String,
-        countryEnvelope: CountryEnvelope
-    ): CountryEnvelope {
-        sharedPreferences.edit().putString(currencyCode, gson.toJson(countryEnvelope)).apply()
-        return countryEnvelope
+        CurrencyOverrides.Get.overrides.forEach {
+            sharedPreferences.edit().putString(it.key, gson.toJson(it.value)).apply()
+        }
     }
 
     override suspend fun isCached(currencyCode: String): Boolean {
