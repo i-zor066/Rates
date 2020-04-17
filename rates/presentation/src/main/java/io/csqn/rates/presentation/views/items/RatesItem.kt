@@ -32,20 +32,15 @@ data class RatesItem(val data: RateEntity, val onValueEdited: (currencyCode: Str
         viewBinding.currencyEdittext.setText(formatNumber(data.rate))
         loadFlag(viewBinding.currencyFlagImageview)
         setValueEditedListener(viewBinding.currencyEdittext, data.currencyCode, onValueEdited)
-
     }
 
-    fun setValueEditedListener(view: EditText, currencyCode: String, listener: (text: String, double: Double) -> Unit) {
-        var editorActionRan = false
-        view.setOnFocusChangeListener { _, b ->
-            if (b.not() && editorActionRan.not()) {
-                listener.invoke(currencyCode, view.text.toString().toDouble())
-            }
-        }
-
+    private fun setValueEditedListener(
+        view: EditText,
+        currencyCode: String,
+        listener: (text: String, double: Double) -> Unit
+    ) {
         view.setOnEditorActionListener { textView, i, keyEvent ->
-            listener.invoke(currencyCode, textView.text.toString().toDouble())
-            editorActionRan = true
+            listener.invoke(currencyCode, textView.text.toString().toDoubleOrNull() ?: 1.00)
             textView.clearFocus()
             false
         }

@@ -14,7 +14,6 @@ import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 class RatesViewModel(
     private val environment: RatesEnvironment
@@ -24,7 +23,7 @@ class RatesViewModel(
 
     private val _updateRates = MutableLiveData<Event<RatesEntity>>()
     private val _hideKeyboard = MutableLiveData<Event<Irrelevant>>()
-    private val defaulBaseRate = Currency.getInstance(Locale.UK).currencyCode
+    private var activeBaseRate = Currency.getInstance(Locale.UK).currencyCode
 
     private lateinit var loadingJob: Job
     val inputs: RatesViewModelInputs = this
@@ -32,12 +31,13 @@ class RatesViewModel(
 
     //region INPUTS
     override fun onViewCreated() {
-        loadPage(defaulBaseRate)
+        loadPage(activeBaseRate)
     }
 
     override fun onValueEdited(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
-        loadingJob.cancel()
+        loadingJob.children
+        activeBaseRate = currencyCode
         loadPage(currencyCode, value)
     }
 
@@ -52,11 +52,15 @@ class RatesViewModel(
        loadingJob = viewModelScope.launch(exceptionHandler) {
             while (isActive) {
                 delay(1000)
-                Log.d("JOB ", "STARTED ${baseCurrency} // $baseRate")
+                if (baseCurrency != activeBaseRate) cancel()
+                Log.d("JOB ", "STARTED ${baseCurrency} // $baseRate // key ${loadingJob.key}")
                 _updateRates.value =
                     Event(environment.getCombinedRatesDataUseCase.invoke(baseCurrency, baseRate))
-                Log.d("JOB ", "ended")
+                Log.d("JOB ", "ended ${loadingJob.key}")
             }
+        }
+        loadingJob.invokeOnCompletion {
+            Log.d("JOB ", "onCompletion ${loadingJob.key}")
         }
     }
 
