@@ -2,6 +2,7 @@ package io.csqn.rates.presentation.views
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
@@ -33,11 +34,13 @@ class RatesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initViews()
-
+        viewModel.baseStates.error.observe(this,
+            EventObserver {
+                handleError(it)
+            })
         viewModel.inputs.onViewCreated()
         viewModel.outputs.updateRates.observe(this,
             EventObserver {
-                Log.d("UPDATING"," ${it.baseRate.code} list: ${it.rates}")
                 setView(it)
             })
         viewModel.outputs.hideKeyboard.observe(this, EventObserver {
@@ -75,5 +78,9 @@ class RatesActivity : AppCompatActivity() {
                     viewModel.inputs.onKeyboardVisibilityChange(isOpen)
                 }
             })
+    }
+
+    private fun handleError(throwable: Throwable) {
+        Toast.makeText(this, throwable.message, Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,5 +1,7 @@
 dependencies {
-//    testImplementation project(':test')
+    testImplementation project(':test')
+    testImplementation "org.mockito:mockito-core:$mockito_version"
+    testImplementation "io.mockk:mockk:$mockk_version"
     testImplementation "androidx.arch.core:core-testing:$core_testing_version"
     testImplementation "androidx.test:monitor:$test_monitor_version"
     testImplementation "androidx.test:core:$test_core_version"

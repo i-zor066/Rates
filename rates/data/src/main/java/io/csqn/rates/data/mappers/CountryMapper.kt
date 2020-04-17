@@ -20,7 +20,9 @@ object CountryMapper {
     private fun getFlagUrl(countryCode: String):String {
         return when (countryCode) {
             CurrencyOverrides.EUR.countryEnvelope.alpha2Code -> CurrencyOverrides.EUR.currencyFlag
-            else -> "$baseFlagUrl${countryCode.toLowerCase()}$flagExtension"
+            else -> "${getBaseFlagUrl()}${countryCode.toLowerCase()}$flagExtension"
         }
     }
+
+    fun getBaseFlagUrl() = baseFlagUrl
 }

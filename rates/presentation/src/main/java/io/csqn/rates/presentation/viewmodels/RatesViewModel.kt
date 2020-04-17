@@ -1,6 +1,5 @@
 package io.csqn.rates.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -12,7 +11,10 @@ import io.csqn.rates.domain.entities.RatesEntity
 import io.csqn.rates.presentation.RatesEnvironment
 import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import java.util.*
 
 class RatesViewModel(
@@ -23,21 +25,18 @@ class RatesViewModel(
 
     private val _updateRates = MutableLiveData<Event<RatesEntity>>()
     private val _hideKeyboard = MutableLiveData<Event<Irrelevant>>()
-    private var activeBaseRate = Currency.getInstance(Locale.UK).currencyCode
-
     private lateinit var loadingJob: Job
+
     val inputs: RatesViewModelInputs = this
     val outputs: RatesViewModelOutputs = this
 
     //region INPUTS
     override fun onViewCreated() {
-        loadPage(activeBaseRate)
+        loadPage(Currency.getInstance(Locale.UK).currencyCode)
     }
 
     override fun onValueEdited(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
-        loadingJob.children
-        activeBaseRate = currencyCode
         loadPage(currencyCode, value)
     }
 
@@ -48,19 +47,13 @@ class RatesViewModel(
     }
     //endregion
 
-    private fun loadPage(baseCurrency: String, baseRate:Double = 1.00) {
-       loadingJob = viewModelScope.launch(exceptionHandler) {
+    private fun loadPage(baseCurrency: String, baseRate: Double = DEFAULT_BASE_RATE) {
+        loadingJob = viewModelScope.launch(exceptionHandler) {
             while (isActive) {
-                delay(1000)
-                if (baseCurrency != activeBaseRate) cancel()
-                Log.d("JOB ", "STARTED ${baseCurrency} // $baseRate // key ${loadingJob.key}")
+                delay(REFRESH_RATE)
                 _updateRates.value =
                     Event(environment.getCombinedRatesDataUseCase.invoke(baseCurrency, baseRate))
-                Log.d("JOB ", "ended ${loadingJob.key}")
             }
-        }
-        loadingJob.invokeOnCompletion {
-            Log.d("JOB ", "onCompletion ${loadingJob.key}")
         }
     }
 
@@ -75,6 +68,9 @@ class RatesViewModel(
         super.onCleared()
         RatesComponentManager.destroy()
     }
+
+    companion object {
+        const val REFRESH_RATE = 1000L
+        const val DEFAULT_BASE_RATE = 1.00
+    }
 }
-
-

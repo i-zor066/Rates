@@ -17,7 +17,7 @@ open class BaseViewModel : ViewModel(), BaseStates {
 
     private val _error = MutableLiveData<Event<Throwable>>()
     private val _isLoading = MutableLiveData<Event<Boolean>>()
-    protected val baseStates:BaseStates by lazy { this@BaseViewModel }
+    val baseStates:BaseStates by lazy { this@BaseViewModel }
 
     protected fun Job.setLoadingState(isLoading: Boolean = true): Job {
         _isLoading.value = Event(isLoading)

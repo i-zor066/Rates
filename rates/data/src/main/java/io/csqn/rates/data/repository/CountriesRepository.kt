@@ -7,7 +7,6 @@ import io.csqn.rates.domain.CountriesRepositoryType
 import io.csqn.rates.domain.models.Country
 import javax.inject.Inject
 
-
 class CountriesRepository @Inject constructor(
     private val countriesApi: CountriesApiType,
     private val countriesCache: CountriesCacheType
