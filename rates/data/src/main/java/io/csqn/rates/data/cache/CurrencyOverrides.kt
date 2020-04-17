@@ -6,7 +6,6 @@ import io.csqn.rates.data.envelopes.CurrencyEnvelope
 sealed class CurrencyOverrides {
 
     object Get : CurrencyOverrides() {
-
        val overrides = mapOf(
             EUR.currencyCode to EUR.countryEnvelope,
             GBP.currencyCode to GBP.countryEnvelope,
@@ -14,10 +13,9 @@ sealed class CurrencyOverrides {
             AUD.currencyCode to AUD.countryEnvelope,
             ZAR.currencyCode to ZAR.countryEnvelope,
             USD.currencyCode to USD.countryEnvelope,
-            INR.currencyCode to INR.countryEnvelope
+            INR.currencyCode to INR.countryEnvelope,
+            SGD.currencyCode to SGD.countryEnvelope
        )
-
-        fun isOverriden(currencyCode: String) = overrides.contains(currencyCode)
     }
 
     object EUR : CurrencyOverrides() {
@@ -105,6 +103,18 @@ sealed class CurrencyOverrides {
                 "IN", listOf(
                     CurrencyEnvelope(
                         currencyCode, "Indian rupee"
+                    )
+                ),
+                ""
+            )
+    }
+    object SGD : CurrencyOverrides() {
+        const val currencyCode = "SGD"
+        val countryEnvelope =
+            CountryEnvelope(
+                "SG", listOf(
+                    CurrencyEnvelope(
+                        currencyCode, "Singapore dollar"
                     )
                 ),
                 ""
