@@ -1,12 +1,11 @@
 package io.csqn.rates.presentation.views
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.xwray.groupie.GroupAdapter
+import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.csqn.core.coreComponent
@@ -17,7 +16,8 @@ import io.csqn.explorer.presentation.di.RatesComponentManager
 import io.csqn.rates.domain.entities.RatesEntity
 import io.csqn.rates.presentation.databinding.ActivityRatesBinding
 import io.csqn.rates.presentation.viewmodels.RatesViewModel
-import io.csqn.rates.presentation.views.items.RatesItem
+import io.csqn.rates.presentation.views.items.EditableRateItem
+import io.csqn.rates.presentation.views.items.RateItem
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.setEventListener
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 
@@ -49,13 +49,11 @@ class RatesActivity : AppCompatActivity() {
     }
 
     private fun setView(ratesEntity: RatesEntity) {
-        baseRateSection.update(listOf(RatesItem(ratesEntity.baseRate) { currencyCode, value ->
+        baseRateSection.update(listOf(EditableRateItem(ratesEntity.baseRate) { currencyCode, value ->
             viewModel.inputs.onValueEdited(currencyCode, value)
         }))
         ratesSection.update(ratesEntity.rates.map {
-            RatesItem(it) { currencyCode, value ->
-                viewModel.inputs.onValueEdited(currencyCode, value)
-            }
+            RateItem(it)
         })
     }
 
@@ -63,11 +61,12 @@ class RatesActivity : AppCompatActivity() {
         val groupAdapter = GroupAdapter<GroupieViewHolder>().apply {
             add(baseRateSection)
             add(ratesSection)
+            setHasStableIds(true)
         }
+        groupAdapter.setOnItemClickListener(listener)
         binding.ratesRecyclerview.apply {
             layoutManager = LinearLayoutManager(this@RatesActivity)
             adapter = groupAdapter
-            (itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         }
 
         setEventListener(
@@ -78,6 +77,11 @@ class RatesActivity : AppCompatActivity() {
                     viewModel.inputs.onKeyboardVisibilityChange(isOpen)
                 }
             })
+    }
+
+    val listener = OnItemClickListener { item, view ->
+        if (item !is EditableRateItem && item is RateItem)
+            Toast.makeText(this@RatesActivity, "NOT NULL ${(item.data.currencyCode)}", Toast.LENGTH_SHORT).show()
     }
 
     private fun handleError(throwable: Throwable) {

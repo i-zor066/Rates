@@ -63,15 +63,14 @@
         android:paddingBottom="@dimen/generic_gap"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/text_x_large"
-        android:gravity="center_vertical|end"
+        android:gravity="end"
         android:maxLines="1"
         android:maxLength="10"
-        android:inputType="number|numberDecimal"
+        android:inputType="numberDecimal"
         android:imeOptions="actionDone"
+        android:enabled="false"
         app:layout_constraintBottom_toBottomOf="@+id/currency_name_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/currency_code_textview"
         tools:text="220.555" />
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

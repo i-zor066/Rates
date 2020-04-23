@@ -11,10 +11,7 @@ import io.csqn.rates.domain.entities.RatesEntity
 import io.csqn.rates.presentation.RatesEnvironment
 import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 class RatesViewModel(

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fitsSystemWindows="true">
 
     <TextView
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/generic_gap_medium"
         android:layout_marginEnd="@dimen/generic_gap_medium"
-        app:layout_constraintTop_toBottomOf="@id/title"/>
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:listitem="@layout/rates_item"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
