@@ -1,6 +1,6 @@
 package io.csqn.rates.domain.entities
 
-class RateEntity(
+data class RateEntity(
     val code: String,
     val currencyCode: String,
     val name: String,

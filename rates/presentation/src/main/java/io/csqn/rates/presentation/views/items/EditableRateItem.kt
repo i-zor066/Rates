@@ -36,7 +36,6 @@ data class EditableRateItem(
     ) {
         editText.isEnabled = true
         editText.setOnEditorActionListener { view, i, keyEvent ->
-            listener.invoke(currencyCode, view.text.toString().toDoubleOrNull() ?: 1.00)
             view.clearFocus()
             false
         }
@@ -69,8 +68,8 @@ data class EditableRateItem(
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 Log.d("EDITTEXT DEBUG", "onTextChanged $p0")
+                listener.invoke(currencyCode, p0.toString().toDoubleOrNull() ?: 1.00)
             }
-
         }
     }
 }

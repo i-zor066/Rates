@@ -12,16 +12,15 @@ class GetCombinedRatesDataUseCase @Inject constructor(
     private val countriesRepositoryType: CountriesRepositoryType,
     private val ratesRepositoryType: RatesRepositoryType
 ){
-    suspend operator fun invoke(baseCurrency: String, baseRate: Double): RatesEntity {
+    suspend operator fun invoke(baseCurrency: String): RatesEntity {
         val rates = ratesRepositoryType.getRates(baseCurrency)
         val base = countriesRepositoryType.getCountryData(rates.baseCurrency)
-        val baseRateEntity = RateEntityMapper.fromModel(base, baseRate)
+        val baseRateEntity = RateEntityMapper.fromModel(base)
         val rateEntityList = ArrayList<RateEntity>()
 
         rates.rates.forEach {
             val currency = countriesRepositoryType.getCountryData(it.key)
-            val rate = baseRateEntity.rate.times(it.value)
-            val entity = RateEntityMapper.fromModel(currency, rate)
+            val entity = RateEntityMapper.fromModel(currency, it.value)
             rateEntityList.add(entity)
         }
         return RatesEntity(baseRateEntity, rateEntityList)

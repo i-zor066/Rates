@@ -13,7 +13,7 @@ import io.csqn.core.extensions.hideKeyboard
 import io.csqn.core.livedata.EventObserver
 import io.csqn.core.viewmodels.getViewModel
 import io.csqn.explorer.presentation.di.RatesComponentManager
-import io.csqn.rates.domain.entities.RatesEntity
+import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.presentation.databinding.ActivityRatesBinding
 import io.csqn.rates.presentation.viewmodels.RatesViewModel
 import io.csqn.rates.presentation.views.items.EditableRateItem
@@ -39,20 +39,27 @@ class RatesActivity : AppCompatActivity() {
                 handleError(it)
             })
         viewModel.inputs.onViewCreated()
+        viewModel.outputs.updateBaseRate.observe(this,
+        EventObserver {
+            setBaseRateView(it)
+        })
         viewModel.outputs.updateRates.observe(this,
             EventObserver {
-                setView(it)
+                setRatesListView(it)
             })
         viewModel.outputs.hideKeyboard.observe(this, EventObserver {
             this@RatesActivity.hideKeyboard()
         })
     }
 
-    private fun setView(ratesEntity: RatesEntity) {
-        baseRateSection.update(listOf(EditableRateItem(ratesEntity.baseRate) { currencyCode, value ->
-            viewModel.inputs.onValueEdited(currencyCode, value)
+    private fun setBaseRateView(baseRate: RateEntity) {
+        baseRateSection.update(listOf(EditableRateItem(baseRate) { currencyCode, value ->
+            viewModel.inputs.updateBaseRate(currencyCode, value)
         }))
-        ratesSection.update(ratesEntity.rates.map {
+    }
+
+    private fun setRatesListView(rates: List<RateEntity>) {
+        ratesSection.update(rates.map {
             RateItem(it)
         })
     }
@@ -79,9 +86,11 @@ class RatesActivity : AppCompatActivity() {
             })
     }
 
-    val listener = OnItemClickListener { item, view ->
-        if (item !is EditableRateItem && item is RateItem)
-            Toast.makeText(this@RatesActivity, "NOT NULL ${(item.data.currencyCode)}", Toast.LENGTH_SHORT).show()
+    private val listener = OnItemClickListener { item, view ->
+        if (item !is EditableRateItem && item is RateItem) {
+            viewModel.inputs.switchBaseCurrency(item.data.currencyCode, item.data.rate)
+            binding.ratesRecyclerview.smoothScrollToPosition(0)
+        }
     }
 
     private fun handleError(throwable: Throwable) {

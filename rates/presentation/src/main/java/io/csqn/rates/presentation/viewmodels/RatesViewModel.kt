@@ -7,7 +7,7 @@ import io.csqn.core.livedata.Event
 import io.csqn.core.livedata.Irrelevant
 import io.csqn.core.viewmodels.BaseViewModel
 import io.csqn.explorer.presentation.di.RatesComponentManager
-import io.csqn.rates.domain.entities.RatesEntity
+import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.presentation.RatesEnvironment
 import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
@@ -20,42 +20,61 @@ class RatesViewModel(
     RatesViewModelInputs,
     RatesViewModelOutputs {
 
-    private val _updateRates = MutableLiveData<Event<RatesEntity>>()
+    private val _updateBaseRate = MutableLiveData<Event<RateEntity>>()
+    private val _updateRates = MutableLiveData<Event<List<RateEntity>>>()
     private val _hideKeyboard = MutableLiveData<Event<Irrelevant>>()
     private lateinit var loadingJob: Job
 
     val inputs: RatesViewModelInputs = this
     val outputs: RatesViewModelOutputs = this
 
+    var activeBaseRateCurrency = Currency.getInstance(Locale.UK).currencyCode
+    var activeBaseRateMultiplier = DEFAULT_BASE_RATE
+
     //region INPUTS
     override fun onViewCreated() {
-        loadPage(Currency.getInstance(Locale.UK).currencyCode)
+        loadPage()
     }
 
-    override fun onValueEdited(currencyCode: String, value: Double) {
+    override fun updateBaseRate(currencyCode: String, value: Double) {
+        activeBaseRateMultiplier = value
+        activeBaseRateCurrency = currencyCode
+    }
+
+    override fun switchBaseCurrency(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
-        loadPage(currencyCode, value)
+        activeBaseRateMultiplier = value
+        activeBaseRateCurrency = currencyCode
+        loadPage()
     }
 
     override fun onKeyboardVisibilityChange(isOpen: Boolean) {
         if (isOpen) {
-            loadingJob.cancel()
+//            loadingJob.cancel()
         }
     }
     //endregion
 
-    private fun loadPage(baseCurrency: String, baseRate: Double = DEFAULT_BASE_RATE) {
+    private fun loadPage() {
         loadingJob = viewModelScope.launch(exceptionHandler) {
             while (isActive) {
                 delay(REFRESH_RATE)
-                _updateRates.value =
-                    Event(environment.getCombinedRatesDataUseCase.invoke(baseCurrency, baseRate))
+                val response =
+                    environment.getCombinedRatesDataUseCase.invoke(activeBaseRateCurrency)
+                _updateBaseRate.value = Event(adjustForMultiplier(activeBaseRateMultiplier, response.baseRate))
+                _updateRates.value = Event(response.rates.map { adjustForMultiplier(activeBaseRateMultiplier, it) })
             }
         }
     }
 
+    private fun adjustForMultiplier(multiplier: Double, entity: RateEntity): RateEntity {
+        return entity.copy(rate = entity.rate * multiplier)
+    }
+
     //region OUTPUTS
-    override val updateRates: LiveData<Event<RatesEntity>>
+    override val updateBaseRate: LiveData<Event<RateEntity>>
+        get() = _updateBaseRate
+    override val updateRates: LiveData<Event<List<RateEntity>>>
         get() = _updateRates
     override val hideKeyboard: LiveData<Event<Irrelevant>>
         get() = _hideKeyboard
