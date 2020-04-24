@@ -1,6 +1,7 @@
 package io.csqn.rates.presentation.views
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +42,7 @@ class RatesActivity : AppCompatActivity() {
         viewModel.inputs.onViewCreated()
         viewModel.outputs.updateBaseRate.observe(this,
         EventObserver {
+            Log.d("BASE RATE DEBUG", "Observer onCreate: Baserate: rateEntity: $it")
             setBaseRateView(it)
         })
         viewModel.outputs.updateRates.observe(this,
@@ -53,9 +55,11 @@ class RatesActivity : AppCompatActivity() {
     }
 
     private fun setBaseRateView(baseRate: RateEntity) {
-        baseRateSection.update(listOf(EditableRateItem(baseRate) { currencyCode, value ->
+        baseRateSection.update(
+            listOf(
+                EditableRateItem(baseRate, { currencyCode, value ->
             viewModel.inputs.updateBaseRate(currencyCode, value)
-        }))
+        }, {viewModel.inputs.onDone()})))
     }
 
     private fun setRatesListView(rates: List<RateEntity>) {

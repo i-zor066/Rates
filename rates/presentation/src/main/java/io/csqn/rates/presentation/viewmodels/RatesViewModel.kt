@@ -1,5 +1,6 @@
 package io.csqn.rates.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MediatorLiveData
@@ -42,6 +43,7 @@ class RatesViewModel(
     }
 
     override fun updateBaseRate(currencyCode: String, value: Double) {
+        Log.d("BASE RATE DEBUG", "updateBaseRate: currencyCode: $currencyCode // value: $value")
         activeBaseRateMultiplier = value
         activeBaseRateCurrency = currencyCode
     }
@@ -49,9 +51,14 @@ class RatesViewModel(
     override fun switchBaseCurrency(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
         clearComposite()
+        Log.d("BASE RATE DEBUG", "switchBaseCurrency: currencyCode: $currencyCode // value: $value")
         activeBaseRateMultiplier = value
         activeBaseRateCurrency = currencyCode
         loadPage()
+    }
+
+    override fun onDone() {
+        _hideKeyboard.value = Event(Irrelevant.Instance)
     }
     //endregion
 
@@ -65,10 +72,13 @@ class RatesViewModel(
     }
 
     private fun updateUi(ratesEntity: RatesEntity) {
+        val updatedBaseRate  = adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
         _updateBaseRate.value =
             Event(
-                adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
+//                adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
+            updatedBaseRate
             )
+        Log.d("BASE RATE DEBUG", "updateUi: updatedBaseRate: $updatedBaseRate")
         _updateRates.value =
             Event(ratesEntity.rates.map {
                 adjustForMultiplier(activeBaseRateMultiplier, it)

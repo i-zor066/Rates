@@ -17,9 +17,11 @@ class GetCombinedRatesDataUseCase @Inject constructor(
 ) {
 
     fun invoke(baseCurrency: String): Flowable<RatesEntity> {
-        return ratesRepositoryType.getRates(baseCurrency).flatMap { rates ->
-            getRatesEntitySingle(rates)
-        }.toFlowable()
+        return ratesRepositoryType
+            .getRates(baseCurrency)
+            .flatMap { rates ->
+                getRatesEntitySingle(rates)
+            }.toFlowable()
     }
 
     private fun getRatesEntitySingle(rates: Rates): Single<RatesEntity> {
@@ -47,5 +49,4 @@ class GetCombinedRatesDataUseCase @Inject constructor(
             RateEntityMapper.fromCountryModel(country)
         }
     }
-
 }
