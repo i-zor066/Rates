@@ -1,1 +1,5 @@
-<resources></resources>
+<resources>
+    <string name="dismiss">Dismiss</string>
+    <string name="offline">You\'re offline</string>
+    <string name="online">Back online</string>
+</resources>

@@ -76,9 +76,15 @@ abstract class BaseRateItem(
             .into(currencyFlagImageview)
     }
 
-    private fun formatNumber(rate: Double): String {
+    protected fun formatNumber(rate: Double): String {
         return NumberFormat.getInstance().apply {
             maximumFractionDigits = 2
         }.format(rate)
+    }
+
+    protected fun getDoubleFromString(stringNumber: String): Double {
+        val number = stringNumber.replace(",","")
+        return number.toDoubleOrNull() ?: 0.00
+
     }
 }

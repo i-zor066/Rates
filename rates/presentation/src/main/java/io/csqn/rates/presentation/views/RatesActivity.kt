@@ -2,16 +2,17 @@ package io.csqn.rates.presentation.views
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import io.csqn.core.coreComponent
+import io.csqn.core.extensions.gone
 import io.csqn.core.extensions.hideKeyboard
+import io.csqn.core.extensions.snapToPosition
 import io.csqn.core.livedata.EventObserver
 import io.csqn.core.viewmodels.getViewModel
 import io.csqn.explorer.presentation.di.RatesComponentManager
@@ -19,7 +20,6 @@ import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.presentation.databinding.ActivityRatesBinding
 import io.csqn.rates.presentation.viewmodels.RatesViewModel
 import io.csqn.rates.presentation.views.items.EditableRateItem
-import io.csqn.rates.presentation.views.items.BaseRateItem
 import io.csqn.rates.presentation.views.items.RateItem
 
 
@@ -41,10 +41,10 @@ class RatesActivity : AppCompatActivity() {
             })
         viewModel.inputs.onViewCreated()
         viewModel.outputs.updateBaseRate.observe(this,
-        EventObserver {
-            Log.d("BASE RATE DEBUG", "Observer onCreate: Baserate: rateEntity: $it")
-            setBaseRateView(it)
-        })
+            EventObserver {
+                Log.d("BASE RATE DEBUG", "Observer onCreate: Baserate: rateEntity: $it")
+                setBaseRateView(it)
+            })
         viewModel.outputs.updateRates.observe(this,
             EventObserver {
                 setRatesListView(it)
@@ -59,8 +59,11 @@ class RatesActivity : AppCompatActivity() {
         baseRateSection.update(
             listOf(
                 EditableRateItem(baseRate, { currencyCode, value ->
-            viewModel.inputs.updateBaseRate(currencyCode, value)
-        }, {viewModel.inputs.onDone()})))
+                    viewModel.inputs.updateBaseRate(currencyCode, value)
+                }, { viewModel.inputs.onDone() })
+            )
+        )
+        binding.loading.gone()
     }
 
     private fun setRatesListView(rates: List<RateEntity>) {
@@ -86,11 +89,22 @@ class RatesActivity : AppCompatActivity() {
         if (item is RateItem) {
             item.removeFocus()
             viewModel.inputs.switchBaseCurrency(item.data.currencyCode, item.data.rate)
-            binding.ratesRecyclerview.smoothScrollToPosition(0)
+            binding.ratesRecyclerview.snapToPosition(0)
         }
     }
 
     private fun handleError(throwable: Throwable) {
-        Toast.makeText(this, throwable.message, Toast.LENGTH_SHORT).show()
+        createNotification(throwable.message.toString())
+    }
+
+    private fun createNotification(string: String) {
+        val snackbar = Snackbar
+            .make(binding.root, string, Snackbar.LENGTH_LONG)
+        snackbar.show()
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        viewModel.inputs.onScreenRotation()
     }
 }

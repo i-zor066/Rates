@@ -34,8 +34,8 @@ class RatesViewModel(
     val inputs: RatesViewModelInputs = this
     val outputs: RatesViewModelOutputs = this
 
-    var activeBaseRateCurrency = Currency.getInstance(Locale.UK).currencyCode
-    var activeBaseRateMultiplier = DEFAULT_BASE_RATE
+    private var activeBaseRateCurrency = Currency.getInstance(Locale.UK).currencyCode
+    private var activeBaseRateMultiplier = DEFAULT_BASE_RATE
 
     //region INPUTS
     override fun onViewCreated() {
@@ -97,6 +97,11 @@ class RatesViewModel(
     override val hideKeyboard: LiveData<Event<Irrelevant>>
         get() = _hideKeyboard
     //endregion
+
+    override fun onScreenRotation() {
+        clearComposite()
+        loadPage()
+    }
 
     override fun onCleared() {
         super.onCleared()

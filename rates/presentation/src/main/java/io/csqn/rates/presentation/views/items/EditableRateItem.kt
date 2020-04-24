@@ -23,6 +23,17 @@ data class EditableRateItem(
         setValueEditedListener(viewBinding.currencyEdittext, data.currencyCode, onValueEdited)
     }
 
+    override fun bind(
+        viewBinding: RatesItemBinding,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
+        super.bind(viewBinding, position, payloads)
+        if (payloads.isNotEmpty() && payloads[0] is OnlyRate) {
+            viewBinding.currencyEdittext.isEnabled = true
+        }
+    }
+
     private fun clearListeners(viewBinding: RatesItemBinding) {
         viewBinding.root.setOnClickListener(null)
         viewBinding.currencyEdittext.setOnFocusChangeListener(null)
@@ -51,8 +62,8 @@ data class EditableRateItem(
     ) {
         editText.isEnabled = true
         editText.setOnEditorActionListener { view, _, _ ->
-            view.clearFocus()
             onDone.invoke()
+            editText.clearFocus()
             false
         }
         editText.setOnFocusChangeListener { view, hasFocus ->
@@ -75,16 +86,13 @@ data class EditableRateItem(
         if (textWatchers.isEmpty()) {
             val textWatcher = object : TextWatcher {
                 override fun afterTextChanged(p0: Editable?) {
-                    Log.d("EDITTEXT DEBUG", "afterTextChanged ${p0.toString()}")
                 }
 
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                    Log.d("EDITTEXT DEBUG", "beforeTextChanged $p0")
-                }
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
                 override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                     Log.d("EDITTEXT DEBUG", "onTextChanged $p0")
-                    listener.invoke(currencyCode, p0.toString().toDoubleOrNull() ?: 1.00)
+                    listener.invoke(currencyCode,getDoubleFromString(p0.toString()) )
                 }
             }
             textWatchers.add(textWatcher)
