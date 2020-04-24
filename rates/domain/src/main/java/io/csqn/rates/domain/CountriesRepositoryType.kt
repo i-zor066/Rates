@@ -1,7 +1,8 @@
 package io.csqn.rates.domain
 
 import io.csqn.rates.domain.models.Country
+import io.reactivex.Single
 
 interface CountriesRepositoryType {
-    suspend fun getCountryData(code: String): Country
+    fun getCountryData(code: String): Single<Country>
 }

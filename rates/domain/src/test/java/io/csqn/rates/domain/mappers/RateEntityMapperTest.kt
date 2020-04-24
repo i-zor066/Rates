@@ -11,7 +11,7 @@ class RateEntityMapperTest {
 
     @Test
     fun `map envelope to model`() {
-        val model = RateEntityMapper.fromModel(CountryFactory.create(), 0.03)
+        val model = RateEntityMapper.fromCountryModel(CountryFactory.create(), 0.03)
 
         assertEquals("currencyName", model.name)
         assertEquals("countryCode", model.code)

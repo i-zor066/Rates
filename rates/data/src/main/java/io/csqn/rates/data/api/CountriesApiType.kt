@@ -1,7 +1,8 @@
 package io.csqn.rates.data.api
 
 import io.csqn.rates.data.envelopes.CountryEnvelope
+import io.reactivex.Single
 
 interface CountriesApiType {
-    suspend fun getCountry(currency: String): CountryEnvelope
+    fun getCountry(currency: String): Single<CountryEnvelope>
 }

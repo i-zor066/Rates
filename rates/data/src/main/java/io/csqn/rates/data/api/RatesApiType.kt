@@ -1,7 +1,9 @@
 package io.csqn.rates.data.api
 
 import io.csqn.rates.data.envelopes.RatesEnvelope
+import io.reactivex.Flowable
+import io.reactivex.Single
 
 interface RatesApiType {
-    suspend fun getRates(baseCurrency: String): RatesEnvelope
+    fun getRates(baseCurrency: String): Single<RatesEnvelope>
 }

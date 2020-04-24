@@ -4,5 +4,4 @@ interface RatesViewModelInputs {
     fun onViewCreated()
     fun updateBaseRate(currencyCode: String, value: Double)
     fun switchBaseCurrency(currencyCode: String, value: Double)
-    fun onKeyboardVisibilityChange(isOpen: Boolean)
 }

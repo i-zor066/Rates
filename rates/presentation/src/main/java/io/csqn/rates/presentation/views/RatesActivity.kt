@@ -75,15 +75,6 @@ class RatesActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@RatesActivity)
             adapter = groupAdapter
         }
-
-        setEventListener(
-            this,
-            this,
-            object : KeyboardVisibilityEventListener {
-                override fun onVisibilityChanged(isOpen: Boolean) {
-                    viewModel.inputs.onKeyboardVisibilityChange(isOpen)
-                }
-            })
     }
 
     private val listener = OnItemClickListener { item, view ->

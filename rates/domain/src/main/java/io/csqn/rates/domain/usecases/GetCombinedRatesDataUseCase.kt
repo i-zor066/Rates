@@ -5,24 +5,46 @@ import io.csqn.rates.domain.RatesRepositoryType
 import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.domain.entities.RatesEntity
 import io.csqn.rates.domain.mappers.RateEntityMapper
-import java.util.*
+import io.csqn.rates.domain.models.Rates
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import javax.inject.Inject
 
 class GetCombinedRatesDataUseCase @Inject constructor(
     private val countriesRepositoryType: CountriesRepositoryType,
     private val ratesRepositoryType: RatesRepositoryType
-){
-    suspend operator fun invoke(baseCurrency: String): RatesEntity {
-        val rates = ratesRepositoryType.getRates(baseCurrency)
-        val base = countriesRepositoryType.getCountryData(rates.baseCurrency)
-        val baseRateEntity = RateEntityMapper.fromModel(base)
-        val rateEntityList = ArrayList<RateEntity>()
+) {
 
-        rates.rates.forEach {
-            val currency = countriesRepositoryType.getCountryData(it.key)
-            val entity = RateEntityMapper.fromModel(currency, it.value)
-            rateEntityList.add(entity)
-        }
-        return RatesEntity(baseRateEntity, rateEntityList)
+    fun invoke(baseCurrency: String): Flowable<RatesEntity> {
+
+        return ratesRepositoryType.getRates(baseCurrency).flatMap { rates ->
+
+            val rateEntityListSingle = Single.zip(
+                getRatesList(rates)
+            ) { t: Array<Any> -> t.map { it as RateEntity } }
+
+            Single.zip(
+                getBaseRateEntitySingle(rates),
+                rateEntityListSingle,
+                BiFunction { t1: RateEntity, t2: List<RateEntity> -> RatesEntity(t1, t2) }
+            )
+        }.toFlowable()
     }
+
+    private fun getRatesList(rates: Rates): List<Single<RateEntity>> {
+        return rates.rates.map {
+            countriesRepositoryType.getCountryData(it.key).map { currency ->
+                RateEntityMapper.fromCountryModel(currency, it.value)
+            }
+        }
+    }
+
+    private fun getBaseRateEntitySingle(rates: Rates): Single<RateEntity> {
+        return countriesRepositoryType.getCountryData(rates.baseCurrency).map { country ->
+            RateEntityMapper.fromCountryModel(country)
+        }
+    }
+
 }

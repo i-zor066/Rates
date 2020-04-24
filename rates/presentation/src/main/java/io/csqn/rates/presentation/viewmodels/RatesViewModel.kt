@@ -1,18 +1,24 @@
 package io.csqn.rates.presentation.viewmodels
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.LiveDataReactiveStreams
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import io.csqn.core.livedata.Event
 import io.csqn.core.livedata.Irrelevant
 import io.csqn.core.viewmodels.BaseViewModel
 import io.csqn.explorer.presentation.di.RatesComponentManager
 import io.csqn.rates.domain.entities.RateEntity
+import io.csqn.rates.domain.entities.RatesEntity
 import io.csqn.rates.presentation.RatesEnvironment
 import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
-import kotlinx.coroutines.*
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Job
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class RatesViewModel(
     private val environment: RatesEnvironment
@@ -23,7 +29,6 @@ class RatesViewModel(
     private val _updateBaseRate = MutableLiveData<Event<RateEntity>>()
     private val _updateRates = MutableLiveData<Event<List<RateEntity>>>()
     private val _hideKeyboard = MutableLiveData<Event<Irrelevant>>()
-    private lateinit var loadingJob: Job
 
     val inputs: RatesViewModelInputs = this
     val outputs: RatesViewModelOutputs = this
@@ -43,28 +48,32 @@ class RatesViewModel(
 
     override fun switchBaseCurrency(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
+        clearComposite()
         activeBaseRateMultiplier = value
         activeBaseRateCurrency = currencyCode
         loadPage()
     }
-
-    override fun onKeyboardVisibilityChange(isOpen: Boolean) {
-        if (isOpen) {
-//            loadingJob.cancel()
-        }
-    }
     //endregion
 
+
     private fun loadPage() {
-        loadingJob = viewModelScope.launch(exceptionHandler) {
-            while (isActive) {
-                delay(REFRESH_RATE)
-                val response =
-                    environment.getCombinedRatesDataUseCase.invoke(activeBaseRateCurrency)
-                _updateBaseRate.value = Event(adjustForMultiplier(activeBaseRateMultiplier, response.baseRate))
-                _updateRates.value = Event(response.rates.map { adjustForMultiplier(activeBaseRateMultiplier, it) })
-            }
-        }
+        environment.getCombinedRatesDataUseCase
+            .invoke(activeBaseRateCurrency)
+            .repeatWhen { it.delay(REFRESH_RATE, TimeUnit.SECONDS) }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe ({updateUi(it)}, {rxError(it)}).addToComposite()
+    }
+
+    private fun updateUi(ratesEntity: RatesEntity) {
+        _updateBaseRate.value =
+            Event(
+                adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
+            )
+        _updateRates.value =
+            Event(ratesEntity.rates.map {
+                adjustForMultiplier(activeBaseRateMultiplier, it)
+            })
     }
 
     private fun adjustForMultiplier(multiplier: Double, entity: RateEntity): RateEntity {
@@ -86,7 +95,7 @@ class RatesViewModel(
     }
 
     companion object {
-        const val REFRESH_RATE = 1000L
+        const val REFRESH_RATE = 1L
         const val DEFAULT_BASE_RATE = 1.00
     }
 }

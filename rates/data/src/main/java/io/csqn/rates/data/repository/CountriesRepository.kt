@@ -5,6 +5,7 @@ import io.csqn.rates.data.cache.CountriesCacheType
 import io.csqn.rates.data.mappers.CountryMapper
 import io.csqn.rates.domain.CountriesRepositoryType
 import io.csqn.rates.domain.models.Country
+import io.reactivex.Single
 import javax.inject.Inject
 
 class CountriesRepository @Inject constructor(
@@ -12,12 +13,12 @@ class CountriesRepository @Inject constructor(
     private val countriesCache: CountriesCacheType
 ) : CountriesRepositoryType {
 
-    override suspend fun getCountryData(code: String): Country {
-        val envelope = if (countriesCache.isCached(code)) {
+    override fun getCountryData(code: String): Single<Country> {
+        val envelopeSingle = if (countriesCache.isCached(code)) {
             countriesCache.getCountryFromCache(code)
         } else {
-            countriesCache.saveToCache(code, countriesApi.getCountry(code))
+            countriesApi.getCountry(code).flatMap { countriesCache.saveToCache(code, it )}
         }
-        return CountryMapper.fromEnvelope(envelope)
+        return envelopeSingle.map {CountryMapper.fromEnvelope(it)}
     }
 }

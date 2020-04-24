@@ -3,6 +3,7 @@ package io.csqn.rates.data.cache
 import android.content.SharedPreferences
 import com.google.gson.Gson
 import io.csqn.rates.data.envelopes.CountryEnvelope
+import io.reactivex.Single
 import javax.inject.Inject
 
 class CountriesCache @Inject constructor(
@@ -16,20 +17,33 @@ class CountriesCache @Inject constructor(
         }
     }
 
-    override suspend fun isCached(currencyCode: String): Boolean {
+    override fun isCachedSingle(currencyCode: String): Single<Boolean> {
+        return Single.create<Boolean> {emitter ->
+            if (!emitter.isDisposed) {
+                emitter.onSuccess(sharedPreferences.contains(currencyCode))
+            }
+        }
+    }
+
+    override fun isCached(currencyCode: String): Boolean {
         return sharedPreferences.contains(currencyCode)
     }
 
-    override suspend fun saveToCache(
+    override  fun saveToCache(
         currencyCode: String,
         countryEnvelope: CountryEnvelope
-    ): CountryEnvelope {
-        sharedPreferences.edit().putString(currencyCode, gson.toJson(countryEnvelope)).apply()
-        return countryEnvelope
-    }
+    ): Single<CountryEnvelope> {
+        return Single.create<CountryEnvelope> {emitter ->
+            sharedPreferences.edit().putString(currencyCode, gson.toJson(countryEnvelope)).apply()
+            if (!emitter.isDisposed) {
+               emitter.onSuccess(countryEnvelope)
+            }
+    }}
 
-    override suspend fun getCountryFromCache(currencyCode: String): CountryEnvelope {
-        val json = sharedPreferences.getString(currencyCode, "")
-        return gson.fromJson(json, CountryEnvelope::class.java)
+    override fun getCountryFromCache(currencyCode: String): Single<CountryEnvelope> {
+        return Single.create<CountryEnvelope> { emitter ->
+            val json = sharedPreferences.getString(currencyCode, "")
+            emitter.onSuccess(gson.fromJson(json, CountryEnvelope::class.java))
+        }
     }
 }
