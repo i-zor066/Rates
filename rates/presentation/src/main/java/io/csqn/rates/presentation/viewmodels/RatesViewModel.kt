@@ -55,7 +55,6 @@ class RatesViewModel(
     }
     //endregion
 
-
     private fun loadPage() {
         environment.getCombinedRatesDataUseCase
             .invoke(activeBaseRateCurrency)
