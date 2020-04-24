@@ -32,9 +32,13 @@ class GetCombinedRatesDataUseCase @Inject constructor(
         )
     }
 
-    private fun getRateEntityListSingle(rates: Rates) =
-        Single.zip(getRatesList(rates))
-        { t: Array<Any> -> t.map { it as RateEntity } }
+    private fun getRateEntityListSingle(rates: Rates): Single<List<RateEntity>> {
+        return Single.zip(
+            getRatesList(rates)
+        ) { t: Array<Any> ->
+            t.map { it as RateEntity }
+        }
+    }
 
     private fun getRatesList(rates: Rates): List<Single<RateEntity>> {
         return rates.rates.map {

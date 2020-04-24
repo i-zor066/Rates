@@ -9,6 +9,8 @@ import io.csqn.rates.data.api.RatesApi
 import io.csqn.rates.data.api.RatesApiType
 import io.csqn.rates.data.cache.CountriesCache
 import io.csqn.rates.data.cache.CountriesCacheType
+import io.csqn.rates.data.cache.RatesCache
+import io.csqn.rates.data.cache.RatesCacheType
 import io.csqn.rates.data.repository.CountriesRepository
 import io.csqn.rates.data.repository.RatesRepository
 import io.csqn.rates.domain.CountriesRepositoryType
@@ -49,5 +51,11 @@ object RatesModule {
         abstract fun provideCountriesCacheType(
             countriesCache: CountriesCache
         ): CountriesCacheType
+
+        @Binds
+        @RatesScope
+        abstract fun provideRatesCacheType(
+            countriesCache: RatesCache
+        ): RatesCacheType
     }
 }

@@ -4,7 +4,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.EditText
-import com.xwray.groupie.Item
 import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.presentation.databinding.RatesItemBinding
 
@@ -13,7 +12,7 @@ data class EditableRateItem(
     val onValueEdited: (currencyCode: String, editedValue: Double) -> Unit,
     val onDone: () -> Unit
 ) :
-    RateItem(entity) {
+    BaseRateItem(entity) {
 
     val textWatchers = ArrayList<TextWatcher>()
 

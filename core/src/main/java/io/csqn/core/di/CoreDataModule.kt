@@ -1,8 +1,10 @@
 package io.csqn.core.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import io.csqn.core.BuildConfig
+import io.csqn.core.network.NetworkConnectionInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -15,19 +17,20 @@ class CoreDataModule {
 
     @Provides
     @Singleton
-    fun providesRetrofitBuilder(): Retrofit.Builder {
+    fun providesRetrofitBuilder(context: Context): Retrofit.Builder {
         return Retrofit.Builder()
             .addConverterFactory(provideConverterFactory())
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .client(provideOkHttpClient())
+            .client(provideOkHttpClient(context))
     }
 
     private fun provideConverterFactory(): GsonConverterFactory {
         return GsonConverterFactory.create()
     }
 
-    private fun provideOkHttpClient(): OkHttpClient {
+    private fun provideOkHttpClient(context: Context): OkHttpClient {
         return OkHttpClient.Builder().apply {
+            addInterceptor(NetworkConnectionInterceptor(context))
             if (BuildConfig.DEBUG)
                 addInterceptor(provideLoggingInterceptor())
         }.build()

@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.OnItemClickListener
 import com.xwray.groupie.Section
@@ -18,9 +19,8 @@ import io.csqn.rates.domain.entities.RateEntity
 import io.csqn.rates.presentation.databinding.ActivityRatesBinding
 import io.csqn.rates.presentation.viewmodels.RatesViewModel
 import io.csqn.rates.presentation.views.items.EditableRateItem
+import io.csqn.rates.presentation.views.items.BaseRateItem
 import io.csqn.rates.presentation.views.items.RateItem
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent.setEventListener
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener
 
 
 class RatesActivity : AppCompatActivity() {
@@ -51,6 +51,7 @@ class RatesActivity : AppCompatActivity() {
             })
         viewModel.outputs.hideKeyboard.observe(this, EventObserver {
             this@RatesActivity.hideKeyboard()
+            binding.ratesRecyclerview.clearFocus()
         })
     }
 
@@ -82,7 +83,8 @@ class RatesActivity : AppCompatActivity() {
     }
 
     private val listener = OnItemClickListener { item, view ->
-        if (item !is EditableRateItem && item is RateItem) {
+        if (item is RateItem) {
+            item.removeFocus()
             viewModel.inputs.switchBaseCurrency(item.data.currencyCode, item.data.rate)
             binding.ratesRecyclerview.smoothScrollToPosition(0)
         }

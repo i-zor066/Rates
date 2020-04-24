@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Rates</string>
+    <string name="no_connection">\"Connection is down exception\"</string>
 </resources>
