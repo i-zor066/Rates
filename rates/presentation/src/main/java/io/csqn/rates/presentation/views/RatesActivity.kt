@@ -1,7 +1,6 @@
 package io.csqn.rates.presentation.views
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -42,7 +41,6 @@ class RatesActivity : AppCompatActivity() {
         viewModel.inputs.onViewCreated()
         viewModel.outputs.updateBaseRate.observe(this,
             EventObserver {
-                Log.d("BASE RATE DEBUG", "Observer onCreate: Baserate: rateEntity: $it")
                 setBaseRateView(it)
             })
         viewModel.outputs.updateRates.observe(this,

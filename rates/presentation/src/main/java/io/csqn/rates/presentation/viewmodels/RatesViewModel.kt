@@ -1,9 +1,6 @@
 package io.csqn.rates.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import io.csqn.core.livedata.Event
 import io.csqn.core.livedata.Irrelevant
@@ -15,9 +12,7 @@ import io.csqn.rates.presentation.RatesEnvironment
 import io.csqn.rates.presentation.viewmodels.input.RatesViewModelInputs
 import io.csqn.rates.presentation.viewmodels.output.RatesViewModelOutputs
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.coroutines.Job
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -43,7 +38,6 @@ class RatesViewModel(
     }
 
     override fun updateBaseRate(currencyCode: String, value: Double) {
-        Log.d("BASE RATE DEBUG", "updateBaseRate: currencyCode: $currencyCode // value: $value")
         activeBaseRateMultiplier = value
         activeBaseRateCurrency = currencyCode
     }
@@ -51,7 +45,6 @@ class RatesViewModel(
     override fun switchBaseCurrency(currencyCode: String, value: Double) {
         _hideKeyboard.value = Event(Irrelevant.Instance)
         clearComposite()
-        Log.d("BASE RATE DEBUG", "switchBaseCurrency: currencyCode: $currencyCode // value: $value")
         activeBaseRateMultiplier = value
         activeBaseRateCurrency = currencyCode
         loadPage()
@@ -68,17 +61,14 @@ class RatesViewModel(
             .repeatWhen { it.delay(REFRESH_RATE, TimeUnit.SECONDS) }
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe ({updateUi(it)}, {rxError(it)}).addToComposite()
+            .subscribe({ updateUi(it) }, { rxError(it) }).addToComposite()
     }
 
     private fun updateUi(ratesEntity: RatesEntity) {
-        val updatedBaseRate  = adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
         _updateBaseRate.value =
             Event(
-//                adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
-            updatedBaseRate
+                adjustForMultiplier(activeBaseRateMultiplier, ratesEntity.baseRate)
             )
-        Log.d("BASE RATE DEBUG", "updateUi: updatedBaseRate: $updatedBaseRate")
         _updateRates.value =
             Event(ratesEntity.rates.map {
                 adjustForMultiplier(activeBaseRateMultiplier, it)

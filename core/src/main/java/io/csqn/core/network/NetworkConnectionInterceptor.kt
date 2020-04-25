@@ -19,7 +19,6 @@ class NetworkConnectionInterceptor(
         return chain.proceed(chain.request())
     }
 
-
     @Suppress("DEPRECATION")
     private fun checkConnection(): Boolean {
         var result = false

@@ -6,7 +6,7 @@ object RatesFactory {
     fun create(): Rates {
         return Rates(
             "baseCurrency",
-            hashMapOf(
+            linkedMapOf(
                 "currency1" to 0.01,
                 "currency2" to 0.02
             )
